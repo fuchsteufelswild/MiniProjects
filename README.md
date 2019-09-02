@@ -1,5 +1,5 @@
 # MiniProjects
-Simple programs with one spesific goal
+Simple programs with one spesific goal <br>
 All applications are written for linux os
 
 - MapReduce (MapReduce implementation in C language with many processes) { Command Line Arguments: (number of mappers) Mapper Reducer < input.txt }
