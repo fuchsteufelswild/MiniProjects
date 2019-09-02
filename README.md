@@ -7,9 +7,7 @@ Languages: C
 
 - Mining Simulator (Basic mining simulator implementation using multithreads with 4 types of actors namely; Miner (Extracts mines) , Transporter (Takes ores from mines and transports them to smelters and foragers), Smelter (Produces copper and iron ingots), Forager(Produces coal ingots)) <br>
 Languages: C++ <br>
-
-Input Spesifications: <br>
-{ <br>
+{Input Spesifications: <br>
 1st line Nm -> number of mines <br>
 next Nm lines -> (Waiting and production interval) (Capacity) (OreType {Iron: 0, Copper: 1, Coal: 2}) (Total amount of extraction) <br>
 next line Nt -> Number of transporters <br>
