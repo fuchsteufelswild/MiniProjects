@@ -2,9 +2,11 @@
 Simple programs with one spesific goal <br>
 All applications are written for linux os
 
-- MapReduce (MapReduce implementation in C language with many processes) { Command Line Arguments: (number of mappers) (Mapper path) (Reducer Path) < input.txt }
+- MapReduce (MapReduce implementation) { Command Line Arguments: (number of mappers) (Mapper path) (Reducer Path) < input.txt } <br>
+Languages: C
 
-- Mining Simulator (Basic mining simulator implementation using multithreads with 4 types of actors namely; Miner (Extracts mines) , Transporter (Takes ores from mines and transports them to smelters and foragers), Smelter (Produces copper and iron ingots), Forager(Produces coal ingots))
+- Mining Simulator (Basic mining simulator implementation using multithreads with 4 types of actors namely; Miner (Extracts mines) , Transporter (Takes ores from mines and transports them to smelters and foragers), Smelter (Produces copper and iron ingots), Forager(Produces coal ingots)) <br>
+Languages: C++ <br>
 
 Input Spesifications: <br>
 { <br>
@@ -18,5 +20,6 @@ next line Nf -> Number of foundries <br>
 next Nf lines -> (Production interval) (Capacity) <br>
 } <br>
 
-- Simple Ext2 File System (Ext2 file system implementation with minimal features; initialization, copying files and directories with arbitrary size, and creation) 
+- Simple Ext2 File System (Ext2 file system implementation with minimal features; initialization, copying files and directories with arbitrary size, and creation) <br>
+Languages: C++ <br>
 { Command Line Arguments: image source (target inode or directory) }
