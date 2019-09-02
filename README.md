@@ -4,7 +4,7 @@ All applications are written for linux os
 
 - MapReduce (MapReduce implementation in C language with many processes) { Command Line Arguments: (number of mappers) (Mapper path) (Reducer Path) < input.txt }
 
-- Mining Simulator (Basic mining simulator implementation using multithreads with 4 types of actors namely; Miners (Extracts mines) , Transporters (Takes ores from mines to smelters and foragers), Smelters (Produces copper and iron ingots), Foragers(Produces coal ingots))
+- Mining Simulator (Basic mining simulator implementation using multithreads with 4 types of actors namely; Miners (Extracts mines) , Transporters (Takes ores from mines and transports them to smelters and foragers), Smelters (Produces copper and iron ingots), Foragers(Produces coal ingots))
 
 Input Spesifications: <br>
 { <br>
