@@ -26,7 +26,7 @@ Seq#|PATHID|DESTID|Checksum|
 '''
 
 total_file_size = 5000000
-payload_size = 100
+payload_size = 500
 payload_packet_size = header_size + payload_size + checksum_size
 number_of_packets = int(total_file_size / payload_size)
 
@@ -34,7 +34,7 @@ ack_packet_size = seq_number_size + path_id_size + dest_id_size + checksum_size
 
 path0 = [('127.0.0.1', 12346), ('10.10.2.1', 25212), ('10.10.5.2', 12349)] # Shortest path experiment 1 
 path1 = [('127.0.0.1', 12346), ('10.10.1.2', 25211), ('10.10.4.2', 12349)] # Experiment 2 first path 
-path2 = [('127.0.0.1', 12346), ('10.10.3.2', 25213), ('10.10.7.1', 12350)] # Experiment 2 second path 
+path2 = [('127.0.0.1', 12346), ('10.10.3.2', 25213), ('10.10.7.1', 25210)] # Experiment 2 second path 
 
 def generate_checksum(packet):
     md5 = hashlib.md5()
@@ -44,9 +44,15 @@ def generate_checksum(packet):
 
 
 def is_packet_corrupted(packet):
+    for i in range(seq_number_size):
+        if(ord(packet[i:i+1]) < ord('0') or ord(packet[i:i+1]) > ord('9')):
+            return True
     return generate_checksum(packet[:header_size + payload_size]) != packet[header_size + payload_size:]
 
 def is_ack_packet_corrupted(packet):
+    for i in range(seq_number_size):
+        if(ord(packet[i:i+1]) < ord('0') or ord(packet[i:i+1]) > ord('9')):
+            return True
     return generate_checksum(packet[:seq_number_size + path_id_size + dest_id_size]) != packet[seq_number_size + path_id_size + dest_id_size:]
 
 def string_to_int(string):
