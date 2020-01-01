@@ -28,3 +28,7 @@ Languages: C++ <br>
 
 - Simple RDT protocol. <br>
   More information can be found in the directory.
+
+- Web-based board game. <br>
+  More information can be found in the directory.
+ 
