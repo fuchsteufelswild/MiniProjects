@@ -4,7 +4,6 @@ import hashlib
 import sys
 import time
 from utils import  *
- # to be imported later
 
 class Receiver:
     def __init__(self, port0, port1, port2, host0, host1, host2):
@@ -42,14 +41,10 @@ class Receiver:
                 send_to_target = addr
                 recv_size += len(data)
                 total_data_recv.extend(data)
-            # print(len(total_data_recv))
-            # message = s.recv(payload_packet_size)
-            # str_message = message.decode(default_encoding_type)
             if(not is_packet_corrupted(total_data_recv)): # packet is error free , accepting the packet
                 seq_number = string_to_int(total_data_recv[0:seq_number_size].decode())
                 rec_flag=0
                 self.expected_lock.acquire()
-                #print(self.expected_seq)
                 
                 if(string_to_int(total_data_recv[seq_number_size:seq_number_size + 1]) == 49): # fin flag is set , terminating the loop
                     
@@ -59,13 +54,8 @@ class Receiver:
 
                     ack_str += bytearray('3'.zfill(1), default_encoding_type) #packet to be sent is in form of Seq+PATHID +DESTID
                     ack_str += bytearray('0'.zfill(1), default_encoding_type)
-                    #print(ack_str.decode())
                     ack_str += generate_checksum(ack_str) # packet to be sent is in form of Seq+PATHID +DESTID +Checksum
-                    # print(ack_str)
                     for i in range(0, 10):
-                        pass
-                        #print("Received triplets")
-                        
                         s.sendto(ack_str, (send_to_target[0], send_to_target[1]))
                     self.is_finished = True
                 if(seq_number==self.expected_seq): # we got the correct seq add it to the recv array
@@ -87,7 +77,6 @@ class Receiver:
                     ack_str += total_data_recv[seq_number_size + 1:seq_number_size + 2] #packet to be sent is in form of Seq+PATHID +DESTID
                     ack_str += bytearray(str(0).zfill(1), default_encoding_type)
                     ack_str += generate_checksum(ack_str) # packet to be sent is in form of Seq+PATHID +DESTID +Checksum
-                    #print(ack_str)
                     s.sendto(ack_str, (send_to_target[0], send_to_target[1]))
                 else:
                     self.expected_lock.acquire()
@@ -97,7 +86,6 @@ class Receiver:
                     ack_str += total_data_recv[seq_number_size + 1:seq_number_size + 2] #packet to be sent is in form of Seq+PATHID +DESTID
                     ack_str += bytearray(str(0).zfill(1), default_encoding_type)
                     ack_str += generate_checksum(ack_str) # packet to be sent is in form of Seq+PATHID +DESTID +Checksum
-                    # print(ack_str)
                     s.sendto(ack_str, (send_to_target[0], send_to_target[1]))
         print("Transmission finished")
 
