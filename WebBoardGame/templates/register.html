@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+  </head>
+  <body>
+    <div class="container">
+      {% if isRegistered %}
+        <h1>Succesfully registered!</h1>
+        <a href="../login/">Back to login page!</a>
+      {% else %}
+        <form action="./" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ user_form.as_p }}
+
+          <input type="submit" name="" value="Register">
+        </form>
+      {% endif %}
+    </div>
+  </body>
+</html>

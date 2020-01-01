@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <table border="1">
+      <tr>
+        {% for player_info in player_infos %}
+          <td>
+            {{ player_info|linebreaks }}
+          </td>
+        {% endfor %}
+      </tr>
+    </table>
+
+    <form class="" action="./" method="post">
+      {% csrf_token %}
+
+      <label for="ready_val">Ready:</label>
+      <input type="text" name="ready_val" value="">
+
+      <input type="submit" name="" value="READY">
+    </form>
+
+  </body>
+
+  <script type="text/javascript">
+    function refresh() { window.location.href = window.location.href; }
+    setInterval('refresh()', 5000);
+  </script>
+</html>

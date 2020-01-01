@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <table border="1">
+      <tr>
+        {% for game in game_list %}
+          <td>
+            {{ game|linebreaks }}
+          </td>
+        {% endfor %}
+      </tr>
+    </table>
+
+    <form class="" action="./" method="post">
+      {% csrf_token %}
+      <label for="game_id">GameID:</label>
+      <input type="text" name="game_id" value="">
+      <input type="submit" name="" value="JOIN">
+
+    </form>
+  </body>
+
+  <script type="text/javascript">
+    function refresh() { window.location.href = window.location.href; }
+    setInterval('refresh()', 5000);
+  </script>
+</html>
