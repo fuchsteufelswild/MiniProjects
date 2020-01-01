@@ -2,7 +2,7 @@ import socket
 import threading
 import sys
 from utils import *
-
+import time
 
 class Intermediate:
     def __init__(self, _ip, _port):
@@ -36,7 +36,7 @@ class Intermediate:
                     first_time = False
                 recv_size += len(data)
                 total_data_recv.extend(data)
-
+            
             if(not is_packet_corrupted(total_data_recv)):
                 
                 path_id = string_to_int(total_data_recv[seq_number_size + 1:seq_number_size + 2]) - 48
@@ -69,13 +69,12 @@ class Intermediate:
                 data, addr = int_socket.recvfrom(ack_packet_size)
                 recv_size += len(data)
                 total_data_recv.extend(data)
-            # print(total_data_recv)
             if(not is_ack_packet_corrupted(total_data_recv)):
                 int_socket.sendto(total_data_recv, (self.sender_addr[0], self.sender_addr[1]))
-                print(string_to_int(total_data_recv[seq_number_size:seq_number_size + 1]))
 
                 if(string_to_int(total_data_recv[seq_number_size:seq_number_size + 1]) == 51):
                     for i in range(0, 10):
+                        
                         int_socket.sendto(total_data_recv, (self.sender_addr[0], self.sender_addr[1]))
                     print("Tranmission finished")
                     break
