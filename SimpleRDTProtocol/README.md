@@ -37,7 +37,8 @@ Wait for it to finish. When it finishes the destination client will print the tr
 
 
 In order to test the results more clearly we can add some delay and loss to links using bash scripts.
-For more realistic results:
+For more realistic results use the bash scripts available under BashScripts directory:
+
 Before conducting the 1st experiment:
 For 5% loss 3ms delay:
 Run Experiment1_configureDS_part0.sh on destination 
