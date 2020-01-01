@@ -1,3 +1,5 @@
+<b>Ray Tracer</b>
+
 Simple Ray Tracer implemented purely in C++.
 
 Compile using makefile.
