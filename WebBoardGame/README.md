@@ -1,4 +1,4 @@
-Web-based board game.
+#Web-based board game.#
 
 Implemented in python. Using Django and javascript, the web-side is implemented.
 
