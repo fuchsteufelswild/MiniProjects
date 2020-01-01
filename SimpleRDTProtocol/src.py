@@ -20,6 +20,7 @@ class Source:
 
         self.message_lock = threading.Lock() # Lock for filling message queue
         self.gather_lock = threading.Semaphore(0) # Notify to gather messages into array
+        # self.gather_lock.acquire()
 
         self.new_packet_to_send = threading.Condition() # 
         self.waiting_sender = []
@@ -50,6 +51,7 @@ class Source:
 
                 self.message_lock.release() 
                 self.lock_nsn.release() 
+
                 self.gather_lock.acquire() # Wait for the signal
         
     
@@ -58,6 +60,7 @@ class Source:
     def check_timeout(self):
         while not self.is_finished:
             time.sleep(default_timer) # Wait
+
             self.lock_is_message_received.acquire() 
             if(not self.is_message_received_in_between): # If any ack received
                 self.lock_nsn.acquire()
@@ -74,6 +77,7 @@ class Source:
             self.is_message_received_in_between = False # Reset
             self.lock_is_message_received.release()
 
+
     # Receiver for paths
     def receiver(self, sender_socket):
         while True:
@@ -85,9 +89,12 @@ class Source:
                 ack_data, _ = sender_socket.recvfrom(ack_packet_size) # Receive
                 total_data_recv.extend(ack_data)
                 recv_size += len(ack_data)
+
             if(not is_ack_packet_corrupted(total_data_recv)): # Check checksums
                 seq_number = string_to_int(total_data_recv[:seq_number_size].decode()) # Convert to string 
+
                 self.lock_is_message_received.acquire() 
+
                 self.lock_nsn.acquire()
                 temp_base = self.base
                 # If we get acknowledgement for greater value
@@ -109,8 +116,6 @@ class Source:
                 if(temp_base >= number_of_packets):
                     print("finished receiving")
                     break
-
-            pass        
     
     # Get corresponding message index
     def get_index(self):
@@ -152,6 +157,7 @@ class Source:
                     continue
                 self.message_lock.release()
                 self.lock_nsn.release()
+            
 
             data_to_send = bytearray(str(seq).zfill(seq_number_size), default_encoding_type) # Initialize with seq number
 
@@ -204,7 +210,7 @@ class Source:
                 is_receiving = True
                 receiver_thread = threading.Thread(target=self.receiver, args=(sender_socket, )) # Run the receiver thread
                 receiver_thread.start()
-        receiver_thread.join()
+        receiver_thread.join(5) # Join the receiver
         print("Tranmission finished")
 
 experiment_type = sys.argv[1] # Type of the experiment given in project text
@@ -222,7 +228,6 @@ if(experiment_type == '0'):
     
     path.start()
     timeout_thread.start()
-
     data_gather.join()
     path.join()
     timeout_thread.join()
@@ -245,3 +250,8 @@ else:
     first_path.join()
     second_path.join()
     timeout_thread.join()
+
+    
+sys.exit()
+
+
