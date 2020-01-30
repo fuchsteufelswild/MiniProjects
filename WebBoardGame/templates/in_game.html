@@ -1,33 +1,121 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static "css/server_lobby.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "css/game_lobby.css" %}"/>
+    <script type="text/javascript" src="{% static "js/server_lobby.js" %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </head>
   <body>
-    <table border="1">
-      <tr>
-        <td>
-          {{ game_state|linebreaks }}
-        </td>
-      </tr>
-    </table>
 
-    <form class="" action="./" method="post">
-      {% csrf_token %}
-      <label for="roll_val">Roll:</label>
-      <input type="text" name="roll_val" value="">
+    <div class="row">
+      <div class="col-sm-6 col-md-6 col-lg-6">
+        <table border="1">
+          {% for pl in players %}
+            <tr style="height: 60px"><td>{{ pl }}</td></tr>
+          {% endfor %}
+        </table>
 
-      <label for="pick_val">Pick:</label>
-      <input type="text" name="pick_val" value="">
+        <div class="player_row">
+          <div class="button_roll">
+            {% if turn_on %}
+              {% if is_roll %}
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(0, 140, 0, 0.2)" onclick="sendRollAnswer( '{{ csrf_token }}', {{ game_id }} )">ROLL</button>
+              {% else %}
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(140, 140, 140, 0.2)">ROLL</button>
+              {% endif %}
+            {% else %}
+              <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(140, 140, 140, 0.2)">ROLL</button>
+            {% endif %}
 
-      <input type="submit" name="" value="SEND">
-    </form>
+          </div>
+          <div class="button_ready">
+            {% if turn_on %}
+              {% if is_pick %}
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(0, 140, 0, 0.2)" onclick="sendPickAnswer( '{{ csrf_token }}', '{{ game_id }}' )">PICK</button>
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(0, 140, 0, 0.2)" onclick="sendDontPickAnswer( '{{ csrf_token }}', '{{ game_id }}' )">DONT PICK</button>
+              {% else %}
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(140, 140, 140, 0.2)">PICK</button>
+                <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(140, 140, 140, 0.2)">DONT PICK</button>
+              {% endif %}
+            {% else %}
+              <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit" style="background-color:rgba(140, 140, 140, 0.2)">PICK</button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div id="game_info" class="col-sm-6 col-md-6 col-lg-6">
+        <h3 align="center">INFO</h3>
+        <div class="info_row">
+          <div id="dice" class="info_column"></div>
+          <div id="cycles" class="info_column"></div>
+        </div>
+        <br>
+        <div class="info_row">
+          <div id="credit" class="info_column"></div>
+          <div id="termination" class="info_column"></div>
+        </div>
+        <br>
+        <h3 align="center">SETUP</h3>
+        <div id="cell_grid" class="grid">
+
+        </div>
+        <br>
+        <h3 align="center">DECK</h3>
+        <div id="card_list" class="card_deck">
+        </div>
+      </div>
+    </div>
 
   </body>
 
   <script type="text/javascript">
-    function refresh() { window.location.href = window.location.href; }
-    setInterval('refresh()', 5000);
+    in_game = 1;
+    setInterval('updateInGame("{{ csrf_token }}")', 750);
   </script>
+
+  <script>
+    console.log("Waiting")
+    updateGameInfo(JSON.parse(`{{ game_state|safe }}`))
+    console.log("Finished")
+
+  </script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function() {
+      // updater.start();
+    });
+
+    var updater = {
+      socket: null,
+
+      start: function() {
+        var url = "ws://" + "127.0.0.1:8888/";
+        updater.scoket = new WebSocket(url);
+        updater.socket.onmessage = function(event) {
+          // console.log(event.data)
+          updater.updateView(event.data);
+        }
+      },
+
+      updateView: function(changeCmd) {
+        if(changeCmd == 'j') {
+          updateGameList('{{ csrf_token }}', updateGameInfo);
+        }
+        else if(changeCmd == 'roll' || changeCmd == 'ready'){
+          updateInGame('{{ csrf_token }}');
+        }
+
+      }
+
+    };
+  </script>
+
+
 </html>

@@ -2,9 +2,30 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <title>Board Game</title>
   </head>
   <body>
-    <a href="BoardGame/login">Board Game!</a>
+    <div class="jumbotron">
+      <h1>Welcome to Board Game</h1>
+      <h3>Login to see the game list!</h3>
+      <a href="BoardGame/login">Take me to the login page!</a>
+    </div>
+    <div class="container">
+      <h3 align="center">RULES</h3>
+      <p>The game consists of cells that may include spesific actions to take on the player that stepped on it. The color of the cell indicates some information about it:</p>
+      <table>
+        <tr><td>Gray->Empty</td></tr>
+        <tr><td>Blue->Artifact</td></tr>
+        <tr><td>Red->Drop Credits</td></tr>
+        <tr><td>Green->Jump with an Amount</td></tr>
+        <tr><td>Dark Green->Jump to Spesific Cell</td></tr>
+        <tr><td>Cyan->Draw a Card</td></tr>
+        <tr><td>Add->Add Credits</td></tr>
+        <tr><td>Orange->Penalty for Fixed # of Turns</td></tr>
+        <tr><td>Purple->Land Pay or Buy</td></tr>
+      </table>
+      <p>This is a turn-based game. That is, the players will play when the turn is on them. Depending on the winning condition the game will finish.</p>
+    </div>
   </body>
 </html>

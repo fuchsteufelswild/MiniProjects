@@ -1,0 +1,21 @@
+
+body{
+  color: black;
+}
+.card{
+  align-self: center;
+  margin-top: 10%;
+  margin-left: 40%;
+  margin-right: 40%;
+}
+
+#innerCard{
+  margin-top: 0%;
+  margin-left: 0%;
+  margin-right: 0%;
+
+}
+
+#register_button{
+  width: 50%;
+}

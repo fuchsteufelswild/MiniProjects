@@ -4,6 +4,7 @@ import socket
 import concurrent
 import threading
 import time
+
 # Content for any cell
 # Either can be an artifact or an action
 class CellContent:
@@ -24,7 +25,7 @@ class EmptyContent(CellContent):
         pass
 
     def __str__(self):
-        return "''"
+        return ""
 
 # Artifact
 # Contains (name, owned status, price, and CellAction)
@@ -53,7 +54,7 @@ class Artifact(CellContent):
         cells[player.current_cell_no].is_artifact = False # Set cell state for an artifact to False
 
     def __str__(self):
-        return "Name: {}\nOwned: {}\nPrice: {}\nAction: {}".format(self.name, self.owned, self.price, self.action)
+        return ",\"artifact\":" + "{" + "\"name\": {}, \"owned\": {}, \"price: {}\"{}".format(self.name, self.owned, self.price, self.action) + "}"
 
 
 # Cell Action
@@ -78,15 +79,17 @@ class JumpAction(CellAction):
             player.current_cell_no += self.value
         else:
             if (player.current_cell_no > self.value):
-                if (player.game.cycles and (len(
-                        player.game.cells) - player.current_cell_no - 1 + self.value < player.current_cell_no - self.value)):
+                # if (player.game.cycles and (len(player.game.cells) - player.current_cell_no - 1 + self.value < player.current_cell_no - self.value)):
+                if(player.game.cycles and player.current_cell_no > self.value):
                     player.finished_rounds += 1
             player.current_cell_no = self.value
         print("Player jumps to: ", player.current_cell_no)
         player.game.on_player_move(player)
 
     def __str__(self):
-        return "Type: {}\nJumpValue: {}".format("jump", self.value)
+        if(self.relative):
+            return ", \"action\":" + "{" + "\"jump\": {}".format(self.value) + "}"
+        return ", \"action\":" + "{" + "jump\": \"={}\"".format(self.value) + "}"
 
 
 # Upon Activation makes player stuck up in a
@@ -100,7 +103,7 @@ class SkipAction(CellAction):
         player.turns_to_skip = self.turns
 
     def __str__(self):
-        return "Type: {}\nTurns_to_Skip: {}".format("skip", self.turns)
+        return ", \"action\":" + "{" + "\"skip\": {}".format(self.turns) + "}"
 
 
 # Upon activation decreases player's credits for a given amount
@@ -117,7 +120,7 @@ class DropAction(CellAction):
                 player.game.game_over = True
 
     def __str__(self):
-        return "Type: {}\nCredits_to_Drop: {}".format("drop", self.drop_value)
+        return ", \"action\":" + "{" + "\"drop\": {}".format(self.drop_value) + "}"
 
 
 # Upon activation draws a card from the deck of cards
@@ -130,7 +133,7 @@ class DrawAction(CellAction):
         player.turn(['drawcard', ''])
 
     def __str__(self):
-        return "Type: {}".format("draw")
+        return ", \"action\": drawcard".format()
 
 
 # Upon activation increases player's credits for a given amount
@@ -143,7 +146,7 @@ class AddAction(CellAction):
         print("Player: ", player.name, " gains ", self.credit_to_add, " raises to ", player.credit)
 
     def __str__(self):
-        return "Type: {}\nCredits_to_Add: {}".format("add", self.credit_to_add)
+        return ", \"action\":" + '{' + "\"add\": {}".format(self.credit_to_add) + "}"
 
 
 # Upon activation player pays given amount of credit to a player with
@@ -167,7 +170,7 @@ class PayAction(CellAction):
         print("Player ", player.id, " pays ", self.credit_to_pay, " to ", self.target_id)
 
     def __str__(self):
-        return "Type: {}\nCredit_to_Pay: {}\nTarget: {}".format("pay", self.credit_to_pay, self.target_id)
+        return ", \"action\":" + '{' + "\"pay\": [ {} {} ]".format(self.target_id, self.credit_to_pay) + "}"
 
 
 # Factory class for actions
@@ -207,7 +210,10 @@ class ActionCreator:
 class Cell:
     def __init__(self, _cellId, _description, _content, _is_artifact):
         self.cellID = _cellId
-        self.description = _description
+        if(_description == ""):
+            self.description = "\"\""
+        else:
+            self.description = _description
         self.content = _content
         self.is_artifact = _is_artifact
 
@@ -215,7 +221,7 @@ class Cell:
         self.content.execute_action(player)
 
     def __str__(self):
-        return "ID: {}|Description: {}|Content: {}\n".format(self.cellID, self.description, str(self.content))
+        return "{" + "\"cellno\": {},\"description\": {}".format(self.cellID, self.description) + str(self.content) + "}"
 
 # Card class
 # Contains general card information along with the action
@@ -230,7 +236,7 @@ class Card:
         self.action.execute_action(player)
 
     def __str__(self):
-        return "ID: {}|Description: {}|Action: {}\n".format(self.cardID, self.description, str(self.action))
+        return "{" + "\"cardno\": {}, \"description:\"{}".format(self.cardID, self.description) + str(self.action) + "}"
 
 # Main Game Class
 class Game:
@@ -363,12 +369,40 @@ class Game:
     @staticmethod
     def listgames():  # Returns all games name along with its state as a string
         res = []
+        #for game in Game.all_games:
+        #    res.append(game.show_lobby_info())
         for game in Game.all_games:
-            res.append(game.show_lobby_info())
+            res.append({'name':game.name, 'pl_info': [pl[0].name for id, pl in game.players.items()]})
         return res
+
 
     # Returns game state
     def state(self):
+        #res = {'turn_number':self.turn_number, 'game_over':self.game_over,
+        #       'pl_turn':self.turn_seq, 'cells':[str(cell_info) for cell_info in self.cells], 'pl_info':[str(pl_info[0]) for k, pl_info in self.players.items()]}
+        res = '{'
+        res += '\"name\": \"{}\",\n\"dice\":{},\n\"cycles\":{},\n\"credit\":{},\n\"termination\":'.format(self.name, self.dice, self.cycles, self.start_with_credit)
+        if(self.termination[1] == -1):
+            res += "\"{}\",\n".format(self.termination[0])
+        else:
+            res += "{"
+            res += "\"{}\":{}".format(self.termination[0], self.termination[1])
+            res += "},\n"
+        res += "\"cells\": [";
+        for i in range(len(self.cells)):
+            res += str(self.cells[i])
+            if(i != len(self.cells) - 1):
+                res += ",\n"
+            else:
+                res += "],\n"
+        res += "\"cards\": ["
+        for i in range(len(self.cards)):
+            res += str(self.cards[i])
+            if(i != len(self.cards) - 1):
+                res += ",\n"
+            else:
+                res += "] }"
+        return self.config
         return str(self)
 
     # Executes player action
@@ -426,6 +460,7 @@ class Game:
     # Called upon any move player makes
     def on_player_move(self, player):
         if (self.cycles or type(self.cycles) == int):  # If cycles
+            print("Contains cycles")
             if (player.current_cell_no >= len(self.cells)):  # If we exceed the length of the track increase the round count
                 if(type(self.cycles) == int):
                     player.credit += self.cycles
@@ -445,7 +480,7 @@ class Game:
         if (self.termination[0] == 'round' and player.finished_rounds >= self.termination[1]):  # If completed n rounds finish the game
             self.game_over = True
             self.winner = player
-
+        print("Player is on: " + str(player.current_cell_no) + " " + str(player.finished_rounds))
         if ( self.cells[player.current_cell_no].is_artifact):  # If current cell contains an artifact
             print("I am on artifact")
             player.turn(['choice', self.cells[player.current_cell_no].content])  # Choice command is sent

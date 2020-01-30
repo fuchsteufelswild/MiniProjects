@@ -7,9 +7,11 @@ from django.contrib.auth.decorators import login_required
 
 from BoardGame.game import *
 import time
+import json
+from manage import user_gids
 # Create your views here.
 
-user_gids = {} # Map usernames to game ids
+
 
 def index(request):
     return render(request, 'index.html')
@@ -17,15 +19,28 @@ def index(request):
 @login_required
 def server_lobby(request):
     username = request.user.username
-
+    if username not in user_gids:
+        user_gids[username] = -1
     if(request.method == "POST"):
+        for key, value in request.POST.items():
+           print('Key: %s' % (key) )
+           # print(f'Key: {key}') in Python >= 3.7
+           print('Value %s' % (value) )
+           # print(f'Value: {value}') in Python >= 3.7
         g_id = int(request.POST.get('game_id'))
-
-        if(Game.all_games[g_id].join_helper(username)):
+        if(int(request.POST.get('join')) == 0):
+            #user_gids[username] = -1
+            if(g_id > 0):
+                game_state = Game.all_games[g_id - 1].state()
+                return HttpResponse(game_state)
+        if(g_id != -1 and Game.all_games[g_id].join_helper(username)):
             user_gids[username] = g_id
+            return HttpResponse(Game.all_games[g_id].config)
             return HttpResponseRedirect('../game_lobby/')
+        else:
+            return  HttpResponse('./')
 
-    user_gids[username] = -1
+
     game_list = Game.listgames()
     time.sleep(0.2)
     return render(request, 'lobby.html', { 'game_list' : game_list })
@@ -55,7 +70,14 @@ def game_lobby(request):
 
     player_infos = curr_game.get_player_info()
     time.sleep(0.2)
-    return render(request, 'game_lobby.html', { 'player_infos' : player_infos })
+    return render(request, 'game_lobby.html', { 'conf' : curr_game.config , 'players' : {pl[0].name : pl[1] for id, pl in curr_game.players.items()}})
+
+@login_required
+def get_game_state(request):
+
+    username = request.user.username
+    print(user_gids[username])
+    return HttpResponse(Game.all_games[user_gids[username]].state())
 
 @login_required
 def in_game(request):
@@ -85,10 +107,10 @@ def in_game(request):
                 pl.pick_lock.release()
                 pl.waiting_for_pick_answer = False
         curr_game.seq_lock.release()
-
+        return HttpResponse(curr_game.state())
     time.sleep(0.2)
 
-    return render(request, 'in_game.html', { 'game_state': curr_game.state() } )
+    return render(request, 'in_game.html', { 'is_pick' : curr_game.players[curr_game.player_ids[username]][0].waiting_for_pick_answer, 'game_id': curr_game.id, 'is_roll' : curr_game.players[curr_game.player_ids[username]][0].waiting_for_roll_answer, 'turn_on' : curr_game.turn_seq == curr_game.player_ids[username], 'curr_player' : curr_game.player_ids[username], 'game_state': curr_game.state(), 'players': curr_game.get_player_info() } )
 
 def user_login(request):
     if(request.method == "POST"):

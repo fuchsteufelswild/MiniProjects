@@ -2,7 +2,12 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import threading
+from BoardGame import routing
 from BoardGame import game
+from multiprocessing import Process
+
+user_gids = {} # Map usernames to game ids
 
 
 s1 = """ { "name": "Test All Actions",
@@ -12,13 +17,17 @@ s1 = """ { "name": "Test All Actions",
 "cells" : [ {"cellno" : 0, "description" : "Start"},
 {"cellno" : 1, "description": "", "action": "drawcard"},
 {"cellno" : 2, "description" : "Bug", "action": {"skip": 1} },
-{"cellno" : 3, "description" : "New version", "action": {"jump": 3} },
+{"cellno" : 3, "description" : "New version", "action": {"jump": 7} },
 {"cellno" : 4, "description" : "Runtime error", "action": {"jump": "=0"} },
 {"cellno" : 5, "description" : "", "action": {"drop": 4}},
-{"cellno" : 6, "description" : "New IDE",
+{"cellno" : 6, "description" : "S1"},
+{"cellno" : 7, "description" : "S2"},
+{"cellno" : 8, "description" : "S3"},
+{"cellno" : 9, "description" : "S4"},
+{"cellno" : 10, "description" : "New IDE",
 "artifact": {"name": "ide", "owned": false,
 "price": 0, "action": {"add": 10}}},
-{"cellno" : 7, "description" : "", "action": {"pay": [-1, 4]} }],
+{"cellno" : 11, "description" : "", "action": {"pay": [-1, 4]} }],
 "cards": [{"cardno" : 0, "description" : "KG", "action" : {"jump": 3 } }] } """
 
 s2 = """ { "name": "Test First Broke",
@@ -31,10 +40,14 @@ s2 = """ { "name": "Test First Broke",
 {"cellno" : 3, "description" : "New version", "action": {"jump": 3} },
 {"cellno" : 4, "description" : "Runtime error", "action": {"jump": "=0"} },
 {"cellno" : 5, "description" : "", "action": {"drop": 4}},
-{"cellno" : 6, "description" : "New IDE",
+{"cellno" : 6, "description" : "S1"},
+{"cellno" : 7, "description" : "S2"},
+{"cellno" : 8, "description" : "S3"},
+{"cellno" : 9, "description" : "S4"},
+{"cellno" : 10, "description" : "New IDE",
 "artifact": {"name": "ide", "owned": false,
 "price": 0, "action": {"add": 10}}},
-{"cellno" : 7, "description" : "", "action": {"pay": [-1, 4]} }],
+{"cellno" : 11, "description" : "", "action": {"pay": [-1, 4]} }],
 "cards": [{"cardno" : 0, "description" : "KG", "action" : {"jump": 3 } }] } """
 
 s3 = """ { "name": "Test Finish",
@@ -47,10 +60,16 @@ s3 = """ { "name": "Test Finish",
 {"cellno" : 3, "description" : "New version", "action": {"jump": 3} },
 {"cellno" : 4, "description" : "Runtime error", "action": {"jump": "=0"} },
 {"cellno" : 5, "description" : "", "action": {"drop": 4}},
-{"cellno" : 6, "description" : "New IDE",
+{"cellno" : 6, "description" : "S1"},
+{"cellno" : 7, "description" : "S2"},
+{"cellno" : 8, "description" : "S3"},
+{"cellno" : 9, "description" : "S4"},
+{"cellno" : 10, "description" : "S5"},
+{"cellno" : 11, "description" : "S6"},
+{"cellno" : 12, "description" : "New IDE",
 "artifact": {"name": "ide", "owned": false,
 "price": 0, "action": {"add": 10}}},
-{"cellno" : 7, "description" : "", "action": {"pay": [-1, 4]} }],
+{"cellno" : 13, "description" : "", "action": {"pay": [-1, 4]} }],
 "cards": [{"cardno" : 0, "description" : "KG", "action" : {"jump": 3 } }] } """
 
 s4 = """ { "name": "Test Artifacts and FirstCollect",
@@ -68,9 +87,12 @@ s4 = """ { "name": "Test Artifacts and FirstCollect",
 "artifact": {"name": "a3", "owned": true, "price": 4, "action": {"add": 10} } },
 {"cellno" : 5, "description" : "", "action": {"add": 20}},
 {"cellno" : 6, "description" : "New IDE"},
-{"cellno" : 7, "description" : "",
+{"cellno" : 7, "description" : "S2"},
+{"cellno" : 8, "description" : "S3"},
+{"cellno" : 9, "description" : "S4"},
+{"cellno" : 10, "description" : "",
 "artifact": {"name": "a4", "owned": true, "price": 3, "action": {"jump": 3}} },
-{"cellno": 8, "description": ""} ],
+{"cellno": 11, "description": ""} ],
 "cards": [{"cardno" : 0, "description" : "KG", "action" : {"jump": 3 } }] } """
 
 s5 = """ { "name": "Negative Credit Player Down",
@@ -83,19 +105,26 @@ s5 = """ { "name": "Negative Credit Player Down",
 {"cellno" : 3, "description" : "New version", "action": {"jump": 3} },
 {"cellno" : 4, "description" : "Runtime error", "action": {"jump": "=0"} },
 {"cellno" : 5, "description" : "", "action": {"drop": 4}},
-{"cellno" : 6, "description" : "New IDE",
+{"cellno" : 6, "description" : "S2"},
+{"cellno" : 7, "description" : "S3"},
+{"cellno" : 8, "description" : "S4"},
+{"cellno" : 9, "description" : "S5"},
+{"cellno" : 10, "description" : "New IDE",
 "artifact": {"name": "ide", "owned": false,
 "price": 0, "action": {"add": 10}}},
-{"cellno" : 7, "description" : "", "action": {"pay": [-1, 4]} }],
+{"cellno" : 11, "description" : "", "action": {"pay": [-1, 4]} }],
 "cards": [{"cardno" : 0, "description" : "KG", "action" : {"jump": 3 } }] } """
 
-seq1 = [1, 0, 2, 0, 0, 1, 0, 1, 0, 6, 0, 4, 0, 1, 0] # Test for all actions and the termination of the game with cycles = True
+seq1 = [1, 0, 2, 0, 0, 1, 0, 1, 0, 6, 0, 8, 0, 1, 0] # Test for all actions and the termination of the game with cycles = True
 seq2 = [5, 0, 1, 0] # First broke s2
-seq3 = [3, 0, 2]          # Finish s3
-seq4 = [2, 4, 3, 1, 2, 1, 1, 2] # First collect s4
+seq3 = [3, 0, 8]          # Finish s3
+seq4 = [2, 4, 3, 1, 5, 1, 1, 2] # First collect s4
 seq5 = [5, 1, 1, 1, 1, 1] # Negative credit game over for player
 
+count = 0
+
 def main():
+    global count
     game.create_game(s1, seq1)
     game.create_game(s2, seq2)
     game.create_game(s3, seq3)
@@ -111,7 +140,12 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    if(count == 0):
+        #Process(target=websockets.start_conn, args=()).start()
+        count += 1
+
     execute_from_command_line(sys.argv)
+
 
 
 if __name__ == '__main__':

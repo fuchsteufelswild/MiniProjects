@@ -1,22 +1,32 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en" dir="ltr">
+
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static "css/login.css" %}"/>
     <title>Board Game</title>
   </head>
   <body>
-    <form class="" action="./" method="post">
-      {% csrf_token %}
-      <label for="username">UserName:</label>
-      <input type="text" name="username" placeholder="username">
-
-      <label for="password">Password:</label>
-      <input type="password" name="password">
-
-      <input type="submit" name="" value="Login">
-    </form>
-
-    <a href="/BoardGame/register/">Register Here!</a>
+    <div class="card">
+      <h5 class="card-header info-color white-text text-center py-4">
+        <strong>Login to start playing</strong>
+      </h5>
+      <div class="card body px-lg-5 pt-0 row" id="innerCard">
+        <form class="text-center" action="./" method="post">
+          {% csrf_token %}
+          <div class="md-form col-xs-1">
+            <input type="text" class="form-control" name="username" placeholder="Username">
+          </div>
+          <div class="md-form">
+            <input type="password" class="form-control" name="password" placeholder="Password">
+          </div>
+          <button class="btn btn-outline-info btn-rounded btn-block my-4 waves-effect z-depth-0" type="submit">Sign in</button>
+          <a href="/BoardGame/register/">Register</a>
+        </form>
+      </div>
+    </div>
 
   </body>
 </html>

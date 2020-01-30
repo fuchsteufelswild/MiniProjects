@@ -1,0 +1,30 @@
+.player_column_name {
+  float: left;
+  width: 65%;
+  margin-left: 5%;
+  margin-top: 20px;
+}
+
+.button_roll{
+  float: left;
+  width: 15%;
+  margin-left: 10%;
+}
+
+.button_ready{
+  float: left;
+
+  width: 15%;
+  margin-right: 15%;
+}
+
+
+.player_column_ready {
+  float: left;
+  width: 15%;
+  margin-right: 15%;
+}
+
+.player_row {
+  background-color: gray;
+}
