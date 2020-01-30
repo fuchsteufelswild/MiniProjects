@@ -24,11 +24,11 @@ Languages: C++ <br>
 
 
 - Simple Ray Tracer <br>
-  More information can be found in the directory. <br>
+  Basic Ray Tracer implemented with pure C++. Detailed information can be found in the corresponding directory. <br>
 
 - Simple RDT protocol. <br>
-  More information can be found in the directory.
+  Extended UDP protocol to support Reliable Data Transfer. Supports different ways to send a single file from source to the destination with RDT. Detailed information can be found in the corresponding directory. <br>
 
 - Web-based board game. <br>
-  More information can be found in the directory.
+  Simple web-based configurable board game created with python, Django(python framework), and javascript. Detailed information can be found in the corresponding directory. <br>
  
