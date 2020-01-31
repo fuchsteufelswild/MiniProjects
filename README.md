@@ -2,6 +2,9 @@
 Simple programs with one spesific goal <br>
 All applications are written for linux os
 
+- Earth Texture Mapping: <br>
+  Earth visualisation in flat and spherical map forms. OpenGL and C++ are used in the development. Detailed information can be found in the corresponding directory. <br>
+
 - MapReduce (MapReduce implementation) { Command Line Arguments: (number of mappers) (Mapper path) (Reducer Path) < input.txt } <br>
 Languages: C
 
