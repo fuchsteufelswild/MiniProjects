@@ -26,8 +26,8 @@ class Scene
 {
 public:
 	int maxRecursionDepth;			// Maximum recursion depth
-	float intTestEps;				// IntersectionTestEpsilon. You will need this one while implementing intersect routines in Shape class
-	float shadowRayEps;				// ShadowRayEpsilon. You will need this one while generating shadow rays. 
+	float intTestEps;				// IntersectionTestEpsilon
+	float shadowRayEps;				// ShadowRayEpsilon
 	Vector3f backgroundColor;		// Background color
 	Vector3f ambientLight;			// Ambient light radiance
 
@@ -37,12 +37,11 @@ public:
 	vector<Vector3f> vertices;		// Vector holding all vertices (vertex data)
 	vector<Shape *> objects;		// Vector holding all shapes
 
-	Scene(const char *xmlPath);		// Constructor. Parses XML file and initializes vectors above. Implemented for you. 
+	Scene(const char *xmlPath);		// Constructor. Parses XML file and initializes vectors above
 
-	void renderScene(void);			// Method to render scene, an image is created for each camera in the scene. You will implement this. 
+	void renderScene(void);			// Method to render scene, an image is created for each camera in the scene 
 
 private:
-    // Write any other stuff here
 	void RenderCam(Camera *cam, Image &img, int iStart, int iEnd);
 	Color RenderPixel(const Ray &ray);
 	void CalculateLight(const Ray &r, Vector3f &outColor, int depth);
